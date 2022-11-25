@@ -1,0 +1,36 @@
+.DS_Store
+
+# Properties files
+/local.properties
+/maven.properties
+
+# Gradle files
+.gradle/
+
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+build/
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# IntelliJ
+*.iml
+.idea/
+
+# Keystore files
+*.jks
+*.keystore
+*.gpg
