@@ -1,0 +1,65 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.kotlin.srcDirs
+}
+
+artifacts {
+    archives androidSourcesJar
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = rootProject.group
+                artifactId = rootProject.name
+                version = rootProject.version
+
+                from components.release
+
+                artifact androidSourcesJar
+
+                pom {
+                    name = "Knob"
+                    description = "Knob Android UI widget"
+                    url = "https://github.com/CoDevBlocks/Knob"
+
+                    licenses {
+                        license {
+                            name = "The Apache License, Version 2.0"
+                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = "Cosmin-CoDevBlocks"
+                            name = "Cosmin Radu"
+                            email = "cosmin@codevblocks.com"
+                        }
+                    }
+
+                    scm {
+                        connection = "scm:git:git://github.com/CoDevBlocks/Knob.git"
+                        developerConnection = "scm:git:ssh://github.com/CoDevBlocks/Knob.git"
+                        url = "https://github.com/CoDevBlocks/Knob"
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    if (rootProject.hasProperty("signing.keyId")
+            && rootProject.hasProperty("signing.password")
+            && rootProject.hasProperty("signing.secretKeyRingFile")) {
+        sign publishing.publications
+    } else {
+        throw new GradleException("!! ERROR: Signing properties NOT set. Cannot sign artifacts. !!")
+    }
+}
+

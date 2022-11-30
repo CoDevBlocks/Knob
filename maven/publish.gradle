@@ -1,0 +1,27 @@
+// Read Maven publishing properties file
+File propertiesFile = project.rootProject.file('maven.properties')
+
+if (propertiesFile.exists()) {
+    Properties p = new Properties()
+    new FileInputStream(propertiesFile).withCloseable { is -> p.load(is) }
+    p.each { name, value -> ext[name] = value }
+}
+
+// Setup Sonatype repository
+if (project.hasProperty("sonatypeUsername")
+        && project.hasProperty("sonatypePassword")
+        && project.hasProperty("sonatypeStagingProfileId")) {
+    apply plugin: 'io.github.gradle-nexus.publish-plugin'
+
+    nexusPublishing {
+        repositories {
+            sonatype {
+                nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
+                snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                stagingProfileId = sonatypeStagingProfileId
+                username = sonatypeUsername
+                password = sonatypePassword
+            }
+        }
+    }
+}

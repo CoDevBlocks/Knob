@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: "${rootDir}/maven/module.gradle"
+
 android {
     namespace 'com.codevblocks.android.knob'
     compileSdk 33
