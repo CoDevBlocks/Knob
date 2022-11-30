@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="Knob">
+
+        <attr name="knobSize" format="dimension" />
+
+        <attr name="fillColor" format="color" />
+        <attr name="fillStartAngle" format="float" />
+        <attr name="fillSweepAngle" format="float" />
+
+        <attr name="trackStrokeColor" format="color" />
+        <attr name="trackStrokeWidth" format="dimension" />
+        <attr name="trackStrokeCap" format="enum">
+            <enum name="butt" value="0" />
+            <enum name="round" value="1" />
+            <enum name="square" value="2" />
+        </attr>
+        <attr name="trackStrokeOffset" format="dimension" />
+
+        <attr name="stepCount" format="integer" />
+        <attr name="stepDrawable" format="reference" />
+        <attr name="stepOffset" format="dimension" />
+        <attr name="stepAnchorX" format="fraction" />
+        <attr name="stepAnchorY" format="fraction" />
+
+        <attr name="progressMode" format="enum">
+            <enum name="continuous" value="0" />
+            <enum name="step" value="1" />
+        </attr>
+        <attr name="maxProgress" format="float" />
+        <attr name="progress" format="float" />
+        <attr name="progressStrokeColor" format="color" />
+        <attr name="progressStrokeWidth" format="dimension" />
+        <attr name="progressStrokeCap" format="enum">
+            <enum name="butt" value="0" />
+            <enum name="round" value="1" />
+            <enum name="square" value="2" />
+        </attr>
+        <attr name="progressStrokeOffset" format="dimension" />
+        <attr name="progressStartAngle" format="float" />
+        <attr name="progressSweepAngle" format="float" />
+
+        <attr name="thumbDrawable" format="reference" />
+        <attr name="thumbOffset" format="dimension" />
+        <attr name="thumbAnchorX" format="fraction" />
+        <attr name="thumbAnchorY" format="fraction" />
+        <attr name="thumbRotation" format="boolean" />
+
+        <attr name="touchThreshold" format="dimension" />
+        <attr name="touchOffset" format="dimension" />
+
+        <attr name="debug" format="boolean" />
+        <attr name="debug_drawBounds" format="boolean" />
+        <attr name="debug_drawTrack" format="boolean" />
+        <attr name="debug_drawTouchRadius" format="boolean" />
+        <attr name="debug_drawTouchArea" format="boolean" />
+    </declare-styleable>
+
+</resources>
