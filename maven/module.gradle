@@ -18,8 +18,7 @@ afterEvaluate {
                 artifactId = rootProject.name
                 version = rootProject.version
 
-                from components.release
-
+                artifact bundleReleaseAar
                 artifact androidSourcesJar
 
                 pom {
