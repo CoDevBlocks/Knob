@@ -24,9 +24,16 @@
         <attr name="stepAnchorX" format="fraction" />
         <attr name="stepAnchorY" format="fraction" />
 
+        <attr name="substepCount" format="integer" />
+        <attr name="substepDrawable" format="reference" />
+        <attr name="substepOffset" format="dimension" />
+        <attr name="substepAnchorX" format="fraction" />
+        <attr name="substepAnchorY" format="fraction" />
+
         <attr name="progressMode" format="enum">
             <enum name="continuous" value="0" />
             <enum name="step" value="1" />
+            <enum name="substep" value="2" />
         </attr>
         <attr name="maxProgress" format="float" />
         <attr name="progress" format="float" />

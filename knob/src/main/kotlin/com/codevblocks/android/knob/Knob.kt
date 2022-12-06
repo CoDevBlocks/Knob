@@ -23,7 +23,8 @@ class Knob@JvmOverloads constructor(
 
     enum class ProgressMode {
         CONTINUOUS,
-        STEP
+        STEP,
+        SUBSTEP
     }
 
     companion object {
@@ -58,6 +59,11 @@ class Knob@JvmOverloads constructor(
         private const val DEFAULT_STEP_ANCHOR_X = 0.5F
         private const val DEFAULT_STEP_ANCHOR_Y = 0.5F
 
+        private const val DEFAULT_SUBSTEP_COUNT = 0
+        private const val DEFAULT_SUBSTEP_OFFSET_DP = 0
+        private const val DEFAULT_SUBSTEP_ANCHOR_X = 0.5F
+        private const val DEFAULT_SUBSTEP_ANCHOR_Y = 0.5F
+
         private const val DEFAULT_TOUCH_THRESHOLD_DP = 0
         private const val DEFAULT_TOUCH_OFFSET_DP = 0
     }
@@ -77,9 +83,15 @@ class Knob@JvmOverloads constructor(
 
     var stepCount: Int  by interceptedUIProperty(DEFAULT_STEP_COUNT) { value -> max(2, value).also { post { progress = progress } } }
     var stepDrawable: Drawable? by uiProperty(updateMeasurementsOnChange = true)
-    var stepOffset: Int by uiProperty(0)
+    var stepOffset: Int by uiProperty(DEFAULT_STEP_OFFSET_DP)
     var stepAnchorX: Float by interceptedUIProperty(DEFAULT_STEP_ANCHOR_X) { value -> if (value.isFinite()) min(1F, max(0F, value)) else DEFAULT_STEP_ANCHOR_X }
     var stepAnchorY: Float by interceptedUIProperty(DEFAULT_STEP_ANCHOR_Y, updateMeasurementsOnChange = true) { value -> if (value.isFinite()) min(1F, max(0F, value)) else DEFAULT_STEP_ANCHOR_Y }
+
+    var substepCount: Int  by interceptedUIProperty(DEFAULT_SUBSTEP_COUNT) { value -> max(2, value).also { post { progress = progress } } }
+    var substepDrawable: Drawable? by uiProperty(updateMeasurementsOnChange = true)
+    var substepOffset: Int by uiProperty(DEFAULT_SUBSTEP_OFFSET_DP)
+    var substepAnchorX: Float by interceptedUIProperty(DEFAULT_SUBSTEP_ANCHOR_X) { value -> if (value.isFinite()) min(1F, max(0F, value)) else DEFAULT_SUBSTEP_ANCHOR_X }
+    var substepAnchorY: Float by interceptedUIProperty(DEFAULT_SUBSTEP_ANCHOR_Y, updateMeasurementsOnChange = true) { value -> if (value.isFinite()) min(1F, max(0F, value)) else DEFAULT_SUBSTEP_ANCHOR_Y }
 
     var progressMode: ProgressMode by reactiveUIProperty(DEFAULT_PROGRESS_MODE) { progress = progress }
     var maxProgress: Float by interceptedUIProperty(DEFAULT_MAX_PROGRESS) { value -> (if (value.isFinite()) max(0F, value) else DEFAULT_MAX_PROGRESS).also { progress = min(progress, it) } }
@@ -88,6 +100,7 @@ class Knob@JvmOverloads constructor(
         when (progressMode) {
             ProgressMode.CONTINUOUS -> progressValue
             ProgressMode.STEP -> (maxProgress / (stepCount - (if (progressSweepAngle < 360F) 1 else 0))).let { progressStep -> progressStep * floor((progressValue + (progressStep * 0.5F)) / progressStep) }
+            ProgressMode.SUBSTEP -> (maxProgress / (substepCount - (if (progressSweepAngle < 360F) 1 else 0))).let { progressStep -> progressStep * floor((progressValue + (progressStep * 0.5F)) / progressStep) }
         }.also { newProgress ->
             if (newProgress.compareTo(progress) != 0) {
                 post {
@@ -156,6 +169,14 @@ class Knob@JvmOverloads constructor(
             stepOffset = getDimensionPixelSize(R.styleable.Knob_stepOffset, stepOffset)
             stepAnchorX = getFraction(R.styleable.Knob_stepAnchorX, 1, 1, stepAnchorX)
             stepAnchorY = getFraction(R.styleable.Knob_stepAnchorY, 1, 1, stepAnchorY)
+
+            substepCount = getInteger(R.styleable.Knob_substepCount, substepCount)
+            substepDrawable = getDrawable(R.styleable.Knob_substepDrawable)?.apply {
+                setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            }
+            substepOffset = getDimensionPixelSize(R.styleable.Knob_substepOffset, substepOffset)
+            substepAnchorX = getFraction(R.styleable.Knob_substepAnchorX, 1, 1, substepAnchorX)
+            substepAnchorY = getFraction(R.styleable.Knob_substepAnchorY, 1, 1, substepAnchorY)
 
             progressMode = ProgressMode.values()[getInteger(R.styleable.Knob_progressMode, DEFAULT_PROGRESS_MODE.ordinal)]
             maxProgress = getFloat(R.styleable.Knob_maxProgress, maxProgress)
@@ -309,7 +330,8 @@ class Knob@JvmOverloads constructor(
 
         drawFill(canvas)
         drawTrack(canvas)
-        drawSteps(canvas)
+        substepDrawable?.let { drawable -> drawSteps(canvas, drawable, substepCount, substepOffset, substepAnchorX, substepAnchorY) }
+        stepDrawable?.let { drawable -> drawSteps(canvas, drawable, stepCount, stepOffset, stepAnchorX, stepAnchorY) }
         drawProgress(canvas)
         drawThumb(canvas)
 
@@ -456,27 +478,25 @@ class Knob@JvmOverloads constructor(
         }
     }
 
-    private fun drawSteps(canvas: Canvas) {
-        stepDrawable?.let { drawable ->
-            if (stepCount >= 2) {
-                val stepProgress = maxProgress / (stepCount - (if (progressSweepAngle < 360F) 1 else 0))
-                repeat(stepCount) { iteration ->
-                    trackPathMeasure.getPosTan((iteration * stepProgress / maxProgress) * trackPathMeasure.length, pathPosition, pathTangent)
+    private fun drawSteps(canvas: Canvas, drawable: Drawable, count: Int, offset: Int, anchorX: Float, anchorY: Float) {
+        if (count >= 2) {
+            val stepProgress = maxProgress / (count - (if (progressSweepAngle < 360F) 1 else 0))
+            repeat(count) { iteration ->
+                trackPathMeasure.getPosTan((iteration * stepProgress / maxProgress) * trackPathMeasure.length, pathPosition, pathTangent)
 
-                    canvas.save()
-                    canvas.concat(transformMatrix.apply {
-                        reset()
-                        postTranslate(
-                            pathPosition[0] - drawable.bounds.width() * stepAnchorX,
-                            pathPosition[1] - stepOffset - drawable.bounds.height() * stepAnchorY)
-                        postRotate(
-                            Math.toDegrees(atan2(pathTangent[1], pathTangent[0]).toDouble()).toFloat(),
-                            pathPosition[0],
-                            pathPosition[1])
-                    })
-                    drawable.draw(canvas)
-                    canvas.restore()
-                }
+                canvas.save()
+                canvas.concat(transformMatrix.apply {
+                    reset()
+                    postTranslate(
+                        pathPosition[0] - drawable.bounds.width() * anchorX,
+                        pathPosition[1] - offset - drawable.bounds.height() * anchorY)
+                    postRotate(
+                        Math.toDegrees(atan2(pathTangent[1], pathTangent[0]).toDouble()).toFloat(),
+                        pathPosition[0],
+                        pathPosition[1])
+                })
+                drawable.draw(canvas)
+                canvas.restore()
             }
         }
     }
@@ -502,6 +522,7 @@ class Knob@JvmOverloads constructor(
             progressStrokeWidth * 0.5F + progressStrokeOffset,
             thumbDrawable?.let { drawable -> drawable.bounds.height() * thumbAnchorY + thumbOffset } ?: 0F,
             stepDrawable?.let { drawable -> drawable.bounds.height() * stepAnchorY + stepOffset } ?: 0F,
+            substepDrawable?.let { drawable -> drawable.bounds.height() * substepAnchorY + substepOffset } ?: 0F,
             touchThreshold * 0.5F + touchOffset,
         )
 
