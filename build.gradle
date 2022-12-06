@@ -6,6 +6,6 @@ plugins {
 }
 
 rootProject.group = "com.codevblocks.android"
-rootProject.version = "1.0.0"
+rootProject.version = "1.0.1"
 
 apply from: "${rootDir}/maven/publish.gradle"
