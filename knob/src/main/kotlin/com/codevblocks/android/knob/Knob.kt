@@ -279,8 +279,11 @@ class Knob@JvmOverloads constructor(
                 }
 
                 if (touchPath.isEmpty || !empty) {
+                    parent.requestDisallowInterceptTouchEvent(true)
+
                     activeTouchPointerId = event.getPointerId(pointerIndex)
                     activeTouchPoint.set(x, y)
+
                     onTouch()
                 }
             }
