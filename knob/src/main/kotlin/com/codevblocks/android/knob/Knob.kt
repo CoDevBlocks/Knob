@@ -232,7 +232,10 @@ class Knob@JvmOverloads constructor(
     init {
         updateMeasurements()
     }
-
+    
+   fun setOnProgressListener(listener: OnProgressListener) {
+        progressListener = listener
+    }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var width = MeasureSpec.getSize(widthMeasureSpec)
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
