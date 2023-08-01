@@ -602,8 +602,14 @@ class Knob@JvmOverloads constructor(
         }
     }
     
-    fun getCurrentProg() : Float {
-       return progress ;
+    fun getProgess() : Float {
+		return progress ;
+	} 
+    
+    @JvmName("functionOfKotlin")
+    fun setProgress( Nprog : Float) {
+	progress = Nprog;
+	invalidate();	
 	} 
     
     interface OnProgressListener {
