@@ -601,7 +601,11 @@ class Knob@JvmOverloads constructor(
             }
         }
     }
-
+    
+    fun getCurrentProg() : Float {
+       return progress ;
+	} 
+    
     interface OnProgressListener {
 
         fun onProgressChanged(knob: Knob, progress: Float)
